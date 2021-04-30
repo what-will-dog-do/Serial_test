@@ -59,11 +59,12 @@ bool SerialPort::get_Mode(int &mode, int &sentry_mode, int &base_mode)
     if (rdata[0] == 0xA5 && Verify_CRC8_Check_Sum(rdata, 3))
     {
         //判断针头和CRC校验是否正确
-        mode  = (int)rdata[1];
-        sentry_mode  = (int)rdata[15];
-        base_mode  = (int)rdata[16];
+        mode  = (int)rdata[1]; //通过此数据控制线程的开启	0关闭自瞄1开启自瞄2小能量机关3大能量机关
         printf("接收到的指令:%d\r\n", mode);
+	//----------No use---------//    
+        sentry_mode  = (int)rdata[15];
         printf("Is in sentry mode ? :%d\r\n", sentry_mode);
+        base_mode  = (int)rdata[16];
         printf("Is in base mode ? :%d\r\n", base_mode);
 
     }
@@ -274,6 +275,7 @@ void SerialPort::TransformDataFirst(int Xpos, int Ypos, int dis)
 
 	Append_CRC8_Check_Sum(Tdata, 3); //CRC8 校验
 
+
 	for (int i = 0; i < 4; i++)
 	{
 		Tdata[3 + i] = Xpos % 10;
@@ -292,7 +294,7 @@ void SerialPort::TransformDataFirst(int Xpos, int Ypos, int dis)
 		dis = (dis - dis % 10) / 10;
     }
 
-	Tdata[15] = 0;
+	Tdata[15] = 0;//通过此端口向下位机发送是否识别到敌方装甲板或能量机关
     Tdata[16] = 0;
     Tdata[17] = 0;
     Tdata[18] = 0;
@@ -337,14 +339,52 @@ void SerialPort::TransformData(const VisionData &data)
     Tdata[18] = 0x00;
     Tdata[19] = data.nearFace;
 
-	Append_CRC16_Check_Sum(Tdata, 22);
+	Append_CRC16_Check_Sum(Tdata, 19);
 
 }
+void SerialPort::TransformData(const Mapdata &data)
+{
 
+    Tdata[0] = 0xA5;
+    Tdata[1] = data.data_length.c[0];
+    Tdata[2] = data.data_length.c[1];
+    Tdata[3] = 0;
+	Append_CRC8_Check_Sum(Tdata, 4);
+
+    Tdata[5] = 0x0303;
+
+    Tdata[3] = data.target_position_x.c[0];
+    Tdata[4] = data.target_position_x.c[1];
+    Tdata[5] = data.target_position_x.c[2];
+    Tdata[6] = data.target_position_x.c[3];
+
+    Tdata[7] = data.target_position_y.c[0];
+    Tdata[8] = data.target_position_y.c[1];
+    Tdata[9] = data.target_position_y.c[2];
+    Tdata[10] = data.target_position_y.c[3];
+
+    Tdata[11] = 0;
+    Tdata[12] = 0;
+    Tdata[13] = 0;
+    Tdata[14] = 0;
+
+    Tdata[15] = 0;
+
+	Tdata[16] = 0;
+    Tdata[17] = 0;
+
+	Append_CRC16_Check_Sum(Tdata, 24);
+
+}
 //发送数据函数
 void SerialPort::send()
 {
 	write(fd, Tdata, 22);
+}
+
+void SerialPort::send1()
+{
+	write(fd, Tdata, 24);
 }
 
 //关闭通讯协议接口

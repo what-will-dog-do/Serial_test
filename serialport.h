@@ -16,11 +16,7 @@
 #include <sys/ioctl.h>
 #include <iostream>
 #include "CRC_Check.h"
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/core.hpp>
-//#include <opencv2/highgui.hpp>
-//#include <opencv2/imgproc.hpp>
-//using namespace cv;
+
 using namespace std;
 
 
@@ -66,6 +62,15 @@ typedef struct
     int isfindDafu;
     int nearFace;
 } VisionData;
+
+//地图识别地方机器人信息
+typedef struct
+{
+int16uchar data_length;
+int16uchar target_robot_ID;
+float2uchar target_position_x;
+float2uchar target_position_y;
+} Mapdata;
 
 
 class SerialPort
