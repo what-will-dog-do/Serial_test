@@ -304,44 +304,7 @@ void SerialPort::TransformDataFirst(int Xpos, int Ypos, int dis)
 }
 
 
-/**
- *@brief   转换数据并发送
- *@param   data   类型  VisionData(union)  包含pitch,yaw,distance
- *@param   flag   类型  char   用于判断是否瞄准目标，0代表没有，1代表已经瞄准
- */
-void SerialPort::TransformData(const VisionData &data)
-{
 
-    Tdata[0] = 0xA5;
-
-    Tdata[1] = CmdID1;
-	Append_CRC8_Check_Sum(Tdata, 3);
-
-    Tdata[3] = data.pitch_angle.c[0];
-    Tdata[4] = data.pitch_angle.c[1];
-    Tdata[5] = data.pitch_angle.c[2];
-    Tdata[6] = data.pitch_angle.c[3];
-
-    Tdata[7] = data.yaw_angle.c[0];
-    Tdata[8] = data.yaw_angle.c[1];
-    Tdata[9] = data.yaw_angle.c[2];
-    Tdata[10] = data.yaw_angle.c[3];
-
-    Tdata[11] = data.dis.c[0];
-    Tdata[12] = data.dis.c[1];
-    Tdata[13] = data.dis.c[2];
-    Tdata[14] = data.dis.c[3];
-
-    Tdata[15] = data.ismiddle;
-	Tdata[16] = data.isFindTarget;
-
-    Tdata[17] = data.isfindDafu;
-    Tdata[18] = 0x00;
-    Tdata[19] = data.nearFace;
-
-	Append_CRC16_Check_Sum(Tdata, 19);
-
-}
 void SerialPort::TransformData(const Mapdata &data)
 {
 
@@ -349,29 +312,30 @@ void SerialPort::TransformData(const Mapdata &data)
     Tdata[1] = data.data_length.c[0];
     Tdata[2] = data.data_length.c[1];
     Tdata[3] = 0;
-	Append_CRC8_Check_Sum(Tdata, 4);
+	Append_CRC8_Check_Sum(Tdata,5);
 
-    Tdata[5] = 0x0303;
+    Tdata[5] = data.target_robot_ID.c[0];
+    Tdata[6] = data.target_robot_ID.c[1];
 
-    Tdata[3] = data.target_position_x.c[0];
-    Tdata[4] = data.target_position_x.c[1];
-    Tdata[5] = data.target_position_x.c[2];
-    Tdata[6] = data.target_position_x.c[3];
+    Tdata[7] = data.target_position_x.c[0];
+    Tdata[8] = data.target_position_x.c[1];
+    Tdata[9] = data.target_position_x.c[2];
+    Tdata[10] = data.target_position_x.c[3];
 
-    Tdata[7] = data.target_position_y.c[0];
-    Tdata[8] = data.target_position_y.c[1];
-    Tdata[9] = data.target_position_y.c[2];
-    Tdata[10] = data.target_position_y.c[3];
-
-    Tdata[11] = 0;
-    Tdata[12] = 0;
-    Tdata[13] = 0;
-    Tdata[14] = 0;
+    Tdata[11] = data.target_position_y.c[0];
+    Tdata[12] = data.target_position_y.c[1];
+    Tdata[13] = data.target_position_y.c[2];
+    Tdata[14] = data.target_position_y.c[3];
 
     Tdata[15] = 0;
-
-	Tdata[16] = 0;
+    Tdata[16] = 0;
     Tdata[17] = 0;
+    Tdata[18] = 0;
+
+    Tdata[19] = 0;
+
+	Tdata[20] = 0;
+    Tdata[21] = 0;
 
 	Append_CRC16_Check_Sum(Tdata, 24);
 
